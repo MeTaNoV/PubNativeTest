@@ -1,0 +1,21 @@
+delete row: in(v1, ['NA'])
+delete row: in(v2, ['NA'])
+replace col: v2,v3,v8 with: '.' on: ','
+settype col: v3 type: 'Float'
+set col: v2 value: ($col - 32.88) / 12.49
+delete row: in(v4, ['NA'])
+set col: v3 value: ($col - 0.0005951) / 0.0005422
+drop col: v5 action: Drop
+delete row: in(v6, ['NA'])
+delete row: in(v7, ['NA'])
+delete row: in(v8, ['NA'])
+set col: v8 value: ($col - 3.49) / 4.38
+# Delete rows where greaterthan(v11, 16)
+delete row: in(v14, ['NA'])
+# Delete rows where greaterthan(v14, 500)
+delete row: in(v15, ['NA'])
+# Delete rows where greaterthan(v15, 5000)
+drop col: v17 action: Drop
+drop col: v19 action: Drop
+drop col: v18 action: Drop
+drop col: v13 action: Drop
