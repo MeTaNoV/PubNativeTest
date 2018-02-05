@@ -5,8 +5,9 @@
 To solve the test proposed, I will use:
 - python 3.6
 - virtualenv
-- TensorFlow in its last version (1.5)
 - Jupyter notebook
+- numpy / pandas / matplotlib / seaborn
+- TensorFlow in its last version (1.5)
 - Google Cloud Dataprep
 
 ## Setup
@@ -32,10 +33,12 @@ source env/bin/activate
 And install the required package:
 
 ```
-pip install jupyter tensorflow
+pip install jupyter numpy pandas matplotlib seaborn tensorflow 
 ```
 
 ## Approach
+
+### Main Test
 
 The first task that we will perform is data analysis and cleaning that will be performed with Google Cloud Dataprep. Dataprep is a powerful tool that will enable us to visualize and perform data transformation with the same interface. Moreover, the data transformation could be reused across dataset easily and are performed on Google Cloud Dataflow (Apache Beam). From this data analysis, we will be able to derive a first set of features to be used in our Machine Learning model.
 
@@ -43,6 +46,14 @@ The second task will consist in different experiment that we will run in a Jupyt
 - The Dataset API (tf.data.*) enable us to read our data and prepare them to be fed inside the model. It is also possible to shuffle, batch, etc... in this phase. This will be implemented inside our `input_fn` that basically will return a batch of features associated with its batch of labels
 - The Feature Column API (tf.feature_column.*) enable us to perform our feature engineering. Indeed, we will be able to choose between numercial, categorical or bucketized value for our different feature columns to be used in our model.
 - The Estimator API (tf.estimator.*) enables us to avoid writing our model from scratch, and instead use some canned estimators to be able to perform our classification. We will first try a `LinearClassifier` then probably a `DNNClassifier` if the first was not performing well and eventually a `DNNLinearCombinedClassifier` to try to improve our predictions. It is worth to note that each of those estimators could be configured, for example using a specific Optimizer. They provide us with the `train`/`evaluate`/`predict` methods which will be used to perform our training, evaluation and prediction. Lastly, we are able to export our model after being trained for serving purpose.
+
+### Bonus Point:
+
+Tensorflow come with a module named Tensorflow serving that provides all the necessary to be able to serve a model in production. GCP goes even further and make it even more easy to package a model prediction service as a no-ops service thanks to its ML Engine product.
+
+### Mega Bonus Point:
+
+TODO...
 
 ## Data Analysis and Cleaning
 
@@ -124,7 +135,7 @@ Let's have a closer look at the different columns now:
 - v11: 
   - numerical value
   - no NA
-  - considering the given distribution, we might want to bucketize this column in 10 different buckets
+  - considering the given distribution, we might want to bucketize this column in 20+1 different buckets for ranges of length 1 between [0,20[ and the remaining
   - good bucketized feature candidate
 
 - v12:
@@ -139,12 +150,12 @@ Let's have a closer look at the different columns now:
 
 - v14:
   - numerical
-  - 25% are 0, we could create 1+5+1 buckets for ranges of length 100 between ]0,500[
+  - 25% are 0, we could create 10+1 buckets for ranges of length 50 between [0,500[ and the remaining
   - good bucketized feature candidate
 
 - v15:
   - numerical
-  - 40% are 0, we could create 1+5+1 buckets for ranges of length 1000 between ]0,5000[
+  - 40% are 0, we could create 10+1 buckets for ranges of length 500 between [0,5000[ and the remaining
   - good bucketized feature candidate
 
 - v17: 
@@ -173,5 +184,13 @@ The cleaned data that we will use in the experiment are located in the `data` fo
 - `training_cleaned.csv`
 - `validation_cleaned.csv`
 
-## Notebook kernel
+## Notebook Kernel
+
+We will now perform our experiments with Jupyter notebook. Simply execute the followiing command:
+
+```
+jupyter notebook
+```
+
+And open the notebook named `PN_experiment_1.ipynb` and follow the comments/instruction from there.
 
