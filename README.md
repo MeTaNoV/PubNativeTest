@@ -227,4 +227,4 @@ and
 ./run_training.sh
 ```
 
-Note that the data used as input are already pre-processed data. It would require a bit more tweaking to integrate the transformation pipeline on the server.
+Note that the data used as input are already pre-processed data. It would require a bit more work to integrate the transformation pipeline on the server.
