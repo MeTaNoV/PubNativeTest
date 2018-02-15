@@ -9,6 +9,7 @@ To solve the test proposed, I will use:
 - numpy / pandas / matplotlib / seaborn
 - TensorFlow in its last version (1.5)
 - Google Cloud Dataprep
+- flask
 
 ## Setup
 
@@ -33,7 +34,7 @@ source env/bin/activate
 And install the required package:
 
 ```
-pip install jupyter numpy pandas matplotlib seaborn tensorflow 
+pip install jupyter numpy pandas matplotlib seaborn tensorflow flask
 ```
 
 ## Approach
@@ -47,13 +48,13 @@ The second task will consist in different experiment that we will run in a Jupyt
 - The Feature Column API (tf.feature_column.*) enable us to perform our feature engineering. Indeed, we will be able to choose between numercial, categorical or bucketized value for our different feature columns to be used in our model.
 - The Estimator API (tf.estimator.*) enables us to avoid writing our model from scratch, and instead use some canned estimators to be able to perform our classification. We will first try a `LinearClassifier` then probably a `DNNClassifier` if the first was not performing well and eventually a `DNNLinearCombinedClassifier` to try to improve our predictions. It is worth to note that each of those estimators could be configured, for example using a specific Optimizer. They provide us with the `train`/`evaluate`/`predict` methods which will be used to perform our training, evaluation and prediction. Lastly, we are able to export our model after being trained for serving purpose.
 
-### Bonus Point:
+### Bonus and Mega Bonus Point:
 
-Tensorflow come with a module named Tensorflow serving that provides all the necessary to be able to serve a model in production. GCP goes even further and make it even more easy to package a model prediction service as a no-ops service thanks to its ML Engine product.
-
-### Mega Bonus Point:
-
-TODO...
+Tensorflow provides the ability with its Estimator to save automatically a model every time a training occurs.
+Therefore we could use this feature to create a flask server that will provide one end point for the training and another for the prediction.
+This solution is simple and fast to set up but will not scale since it lives on one server only.
+To make this solution scale, we would need to decouple the training from the prediction and use some intermediate storage bucket for the model. This could also enable A/B testing when releasing a new version of the model.
+Other solutions exist, namely, GCP provides a way to train and serve a Tensorflow model in a no-ops manner thanks to its ML Engine service. 
 
 ## Data Analysis and Cleaning
 
@@ -192,5 +193,38 @@ We will now perform our experiments with Jupyter notebook. Simply execute the fo
 jupyter notebook
 ```
 
-And open the notebook named `PN_experiment_1.ipynb` and follow the comments/instruction from there.
+We will perform first a deeper exploration of the data thanks to the `Deeper_Data_Exploration.ipynb` notebook.
+This task gave us more intuition on the effect of each features on the `classLabel` to predict.
+Namely, we can clearly see that `v9` has the biggest correlation with it. And looking closer at this relation, if we decide to use only `v9` as the prediction, we would obtain 92% accuracy on the training set and 86% on the training dataset which give us a good baseline to achieve in terms of efficiency.
+I also discovered that `v10` and `v11` are closely related since `v10 = (v11 != 0)`, but we will keep both since `v11` contains a more detailed information that might be useful.
+Lastly, from the correlation heatmap, I decided to remove some features, namely `v4`, `v6` and `v14`.
 
+Then open the notebook named `PN_experiment.ipynb` and follow the comments/instruction from there.
+
+## Serving the model
+
+Now that we finalized our model, we need to be able to serve it. We will use a simple flask application to perform this task.
+
+The code for the server application can be found in `ml_server.py`.
+
+It basically creates a server with two endpoints. I slightly adapted the code from the notebook to take as input some JSON data received via the endpoints, and feed it to the model for training or prediction.
+
+To launch the server, simply execute the following:
+
+```bash
+./run_server.sh
+```
+
+The server could be quickly tested by running the prediction or training scripts in another console:
+
+```bash
+./run_prediction.sh
+```
+
+and 
+
+```bash
+./run_training.sh
+```
+
+Note that the data used as input are already pre-processed data. It would require a bit more tweaking to integrate the transformation pipeline on the server.
